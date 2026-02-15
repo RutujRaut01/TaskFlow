@@ -99,7 +99,7 @@ const BoardView = () => {
 
     const fetchBoard = async () => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/boards/${id}`);
+            const res = await axios.get((import.meta.env.VITE_API_BASE_URL || '/api') + `/boards/${id}`);
             setBoard(res.data);
             setLists(res.data.lists || []);
             // Flatten tasks from lists for easier state management, or keep them nested?
@@ -205,7 +205,7 @@ const BoardView = () => {
             if (task.list !== overListId) {
                 // Moved to new list
                 try {
-                    await axios.put(`http://localhost:5000/api/tasks/${task._id}`, {
+                    await axios.put((import.meta.env.VITE_API_BASE_URL || '/api') + `/tasks/${task._id}`, {
                         listId: overListId // Update DB
                     });
                     // State is largely updated by optimistic dragOver or socket event
@@ -219,7 +219,7 @@ const BoardView = () => {
     const createList = async () => {
         if (!newListTitle.trim()) return;
         try {
-            await axios.post('http://localhost:5000/api/lists', {
+            await axios.post((import.meta.env.VITE_API_BASE_URL || '/api') + '/lists', {
                 title: newListTitle,
                 boardId: id
             });
@@ -232,7 +232,7 @@ const BoardView = () => {
 
     const handleAddTask = async (listId, title, priority) => {
         try {
-            await axios.post('http://localhost:5000/api/tasks', {
+            await axios.post((import.meta.env.VITE_API_BASE_URL || '/api') + '/tasks', {
                 title,
                 listId,
                 boardId: id,
@@ -245,7 +245,7 @@ const BoardView = () => {
 
     const handleDeleteList = async (listId) => {
         try {
-            await axios.delete(`http://localhost:5000/api/lists/${listId}`);
+            await axios.delete((import.meta.env.VITE_API_BASE_URL || '/api') + `/lists/${listId}`);
         } catch (err) {
             console.error(err);
         }
@@ -253,7 +253,7 @@ const BoardView = () => {
 
     const handleDeleteTask = async (taskId) => {
         try {
-            await axios.delete(`http://localhost:5000/api/tasks/${taskId}`);
+            await axios.delete((import.meta.env.VITE_API_BASE_URL || '/api') + `/tasks/${taskId}`);
         } catch (err) {
             console.error(err);
         }
@@ -261,7 +261,7 @@ const BoardView = () => {
 
     const handleUpdateTask = async (taskId, updates) => {
         try {
-            await axios.put(`http://localhost:5000/api/tasks/${taskId}`, updates);
+            await axios.put((import.meta.env.VITE_API_BASE_URL || '/api') + `/tasks/${taskId}`, updates);
             // Socket will handle the state update
         } catch (err) {
             console.error(err);
@@ -270,7 +270,7 @@ const BoardView = () => {
 
     const confirmDeleteBoard = async () => {
         try {
-            await axios.delete(`http://localhost:5000/api/boards/${id}`);
+            await axios.delete((import.meta.env.VITE_API_BASE_URL || '/api') + `/boards/${id}`);
             navigate('/dashboard');
         } catch (err) {
             console.error(err);

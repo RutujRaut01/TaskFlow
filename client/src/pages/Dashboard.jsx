@@ -20,7 +20,7 @@ const Dashboard = () => {
 
     const fetchBoards = async () => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/boards?page=${page}&search=${search}`);
+            const res = await axios.get((import.meta.env.VITE_API_BASE_URL || '/api') + `/boards?page=${page}&search=${search}`);
             setBoards(res.data.boards);
             setTotalPages(res.data.totalPages);
         } catch (error) {
@@ -33,7 +33,7 @@ const Dashboard = () => {
         if (!newBoardTitle) return;
 
         try {
-            const res = await axios.post('http://localhost:5000/api/boards', {
+            const res = await axios.post((import.meta.env.VITE_API_BASE_URL || '/api') + '/boards', {
                 title: newBoardTitle
             });
             // Refresh boards
@@ -54,7 +54,7 @@ const Dashboard = () => {
     const confirmDeleteBoard = async () => {
         if (!boardToDelete) return;
         try {
-            await axios.delete(`http://localhost:5000/api/boards/${boardToDelete._id}`);
+            await axios.delete((import.meta.env.VITE_API_BASE_URL || '/api') + `/boards/${boardToDelete._id}`);
             fetchBoards();
             setShowDeleteModal(false);
             setBoardToDelete(null);

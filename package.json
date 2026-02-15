@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "start": "npm start --prefix server",
+    "server": "npm start --prefix server",
+    "client": "npm run dev --prefix client",
+    "build": "npm install && npm install --prefix client && npm run build --prefix client && npm install --prefix server"
+  },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",

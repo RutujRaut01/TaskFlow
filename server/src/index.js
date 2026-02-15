@@ -81,11 +81,22 @@ app.use('/api/boards', require('./routes/boardRoutes'));
 app.use('/api/lists', require('./routes/listRoutes'));
 app.use('/api/tasks', require('./routes/taskRoutes'));
 
+// Serve static assets in production
+if (process.env.NODE_ENV === 'production') {
+    const path = require('path');
+    // Serve static files from the client/dist directory
+    app.use(express.static(path.join(__dirname, '../../client/dist')));
 
-// Basic Route
-app.get('/', (req, res) => {
-    res.send('Task Collaboration Platform API is running');
-});
+    // Handle React routing, return all requests to React app
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, '../../client/dist', 'index.html'));
+    });
+} else {
+    // Basic Route for development
+    app.get('/', (req, res) => {
+        res.send('Task Collaboration Platform API is running');
+    });
+}
 
 const PORT = process.env.PORT || 5000;
 console.log(`Attempting to listen on port ${PORT}`);
