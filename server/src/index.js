@@ -4,6 +4,31 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const { Server } = require('socket.io');
+const fs = require('fs');
+
+const originalLog = console.log;
+console.log = (msg, ...args) => {
+    try {
+        const logMsg = [msg, ...args].map(a => (typeof a === 'object' ? JSON.stringify(a) : a)).join(' ');
+        fs.appendFileSync('server_debug.log', logMsg + '\n');
+    } catch (e) { }
+    originalLog(msg, ...args);
+};
+const originalError = console.error;
+console.error = (msg, ...args) => {
+    try {
+        const logMsg = [msg, ...args].map(a => (typeof a === 'object' ? JSON.stringify(a) : a)).join(' ');
+        fs.appendFileSync('server_debug.log', 'ERROR: ' + logMsg + '\n');
+    } catch (e) { }
+    originalError(msg, ...args);
+};
+
+console.log('Starting server initialization...');
+
+process.on('uncaughtException', (err) => {
+    console.error(`Uncaught Exception: ${err.message}\n${err.stack}`);
+    process.exit(1);
+});
 
 dotenv.config();
 
@@ -20,6 +45,7 @@ app.use(express.json());
 
 // Database Connection
 require('./config/db')();
+console.log('DB setup initiated');
 
 // Socket.io Setup
 const io = new Server(server, {
@@ -28,14 +54,33 @@ const io = new Server(server, {
         methods: ['GET', 'POST']
     }
 });
+console.log('Socket.io initialized');
+
+// Make io available in routes
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
 
 io.on('connection', (socket) => {
     console.log('New client connected:', socket.id);
+
+    socket.on('join_board', (boardId) => {
+        socket.join(boardId);
+        console.log(`Socket ${socket.id} joined board ${boardId}`);
+    });
 
     socket.on('disconnect', () => {
         console.log('Client disconnected:', socket.id);
     });
 });
+
+// Routes
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/boards', require('./routes/boardRoutes'));
+app.use('/api/lists', require('./routes/listRoutes'));
+app.use('/api/tasks', require('./routes/taskRoutes'));
+
 
 // Basic Route
 app.get('/', (req, res) => {
@@ -43,6 +88,7 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+console.log(`Attempting to listen on port ${PORT}`);
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
