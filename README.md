@@ -16,6 +16,25 @@ A real-time task management application similar to Trello, built with the MERN s
 - **Frontend**: React (Vite), Tailwind CSS, @dnd-kit/core, Socket.io-client, Axios.
 - **Backend**: Node.js, Express, MongoDB (Mongoose), Socket.io, JSONWebToken.
 
+## Architecture
+
+TaskFlow utilizes a Client-Server architecture powered by the MERN stack.
+- **Client**: Single Page Application (SPA) built with React. It uses `Context API` for global state management (Auth, Board state) and `Socket.io-client` to listen for real-time events.
+- **Server**: RESTful API built with Express.js. It handles HTTP requests for CRUD operations and maintains persistent WebSocket connections via `Socket.io` for real-time broadcasting.
+- **Database**: MongoDB stores relational data (Users, Boards, Lists, Tasks) using Mongoose for schema modeling.
+
+## Assumptions
+
+- **Single Tenancy within Boards**: All users with access to a board can modify it. We assume a high-trust environment among collaborators.
+- **Connectivity**: The application is designed for online use. Offline capabilities are currently limited.
+- **Modern Browsers**: We assume users are on up-to-date browsers that support ES6+ features and WebSockets.
+
+## Trade-offs
+
+- **Context API vs Redux**: We chose React's built-in Context API over Redux. **Pros**: Less boilerplate, native integration. **Cons**: Potential performance bottlenecks with frequent high-frequency updates (mitigated by component composition), less dev tooling than Redux DevTools.
+- **Socket.io vs Native WebSockets**: We use Socket.io. **Pros**: Automatic reconnection, room support, fallback to polling. **Cons**: Slightly heavier client/server payload than raw WebSockets.
+- **Monolithic Backend**: The backend is a structured monolith. **Pros**: Easier to deploy (single Render service), shared code/types potential, simpler debugging. **Cons**: Scales as a whole block; cannot scale just the "Task" service independently.
+
 ## Setup Instructions
 
 ### Prerequisites
